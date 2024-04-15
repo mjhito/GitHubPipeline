@@ -29,8 +29,8 @@ jobs:
       - run: snyk -v
       - run: snyk auth ${{ secrets.snyk_token }} # snyk authentication using GH secrets
       # test
-      - name: install snyk-to-html
-        run: |
+      #- name: install snyk-to-html
+        #run: |
        # Install the Snyk JSON to HTML Mapper using npm
                npm install snyk-to-html -g
                # Convert JSON output from `snyk test --json` into a static HTML
