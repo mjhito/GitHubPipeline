@@ -30,14 +30,16 @@ jobs:
     #- run: snyk config set endpoint='https://app.eu.snyk.io/api'
       
     - run: snyk auth ${{ secrets.SNYK_TOKEN }}
-
+    # Generate the HTML report
+    - name: install snyk-to-html
+      run: |    
     - name: Snyk Open Source Scanning
-      run: snyk test  --all-projects 
+      run: snyk test --json --all-projects | snyk-to-html -o snyksca.html   
       continue-on-error: true
     
 
     - name: Snyk Code Scanning
-      run: snyk code test  
+      run: snyk code test --json | snyk-to-html -o snykcode.html 
       continue-on-error: true
     
 
@@ -45,11 +47,11 @@ jobs:
     #  run: docker build . --file Dockerfile --tag sebsnyk/juice-shop:latest
 
     - name: Snyk Container Scanning
-      run: snyk container test  
+      run: snyk container test --json | snyk-to-html -o snykcont.html 
       continue-on-error: true
     
 
     - name: Snyk Infrastructure-as-Code Scanning
-      run: snyk iac test 
+      run: snyk iac test --json | snyk-to-html -o snykiac.html
       continue-on-error: true
     
