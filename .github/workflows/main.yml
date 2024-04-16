@@ -36,9 +36,8 @@ jobs:
                npm install snyk-to-html -g
     - name: Snyk Open Source Scanning
       run: snyk test --json --all-projects | snyk-to-html -o snyksca.html   
-      
-      mkdir downloads
-          cp -v /home/runner/work/java-goof/java-goof/*.html /home/runner/work/java-goof/java-goof/downloads
+           mkdir downloads
+           cp -v /home/runner/work/java-goof/java-goof/*.html /home/runner/work/java-goof/java-goof/downloads
 
       - name: Use the Upload Artifact GitHub Action
         uses: actions/upload-artifact@v2
