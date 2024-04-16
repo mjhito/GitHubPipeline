@@ -30,10 +30,9 @@ jobs:
     #- run: snyk config set endpoint='https://app.eu.snyk.io/api'
       
     - run: snyk auth ${{ secrets.SNYK_TOKEN }}
-    # Generate the HTML report
+    
     - name: install snyk-to-html
       run: | 
-    # Install the Snyk JSON to HTML Mapper using npm
                npm install snyk-to-html -g
     - name: Snyk Open Source Scanning
       run: snyk test --json --all-projects | snyk-to-html -o snyksca.html   
