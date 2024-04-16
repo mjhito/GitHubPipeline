@@ -32,7 +32,9 @@ jobs:
     - run: snyk auth ${{ secrets.SNYK_TOKEN }}
     # Generate the HTML report
     - name: install snyk-to-html
-      run: |    
+      run: | 
+    # Install the Snyk JSON to HTML Mapper using npm
+               npm install snyk-to-html -g
     - name: Snyk Open Source Scanning
       run: snyk test --json --all-projects | snyk-to-html -o snyksca.html   
       continue-on-error: true
