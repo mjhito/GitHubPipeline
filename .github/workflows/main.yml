@@ -53,7 +53,7 @@ jobs:
       run: docker build . --file Dockerfile --tag sladey01/sladey01.github.io:latest
 
     - name: Snyk Container Scanning
-      run: snyk container test --json | snyk-to-html -o snykcont.html 
+      run: snyk container test --file=Dockerfile -json | snyk-to-html -o snykcont.html 
       continue-on-error: true
     
 
