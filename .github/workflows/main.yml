@@ -32,7 +32,7 @@ jobs:
     - run: snyk auth ${{ secrets.SNYK_TOKEN }}
     
     - name: Snyk Open Source Scanning
-      run: snyk test --json --all-projects | snyk-to-html -o snyksca.html   
+      run: snyk test --json --all-projects #| snyk-to-html -o snyksca.html   
       continue-on-error: true
       
     - name: install snyk-to-html
