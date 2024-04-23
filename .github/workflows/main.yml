@@ -50,7 +50,7 @@ jobs:
     
 
     - name: Build the Docker Image
-      run: docker build . --file Dockerfile --tag sebsnyk/juice-shop:latest
+      run: docker build . --file Dockerfile --tag sladey01/sladey01.github.io:latest
 
     - name: Snyk Container Scanning
       run: snyk container test --json | snyk-to-html -o snykcont.html 
