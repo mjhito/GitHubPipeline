@@ -33,7 +33,7 @@ jobs:
     - name: install snyk-to-html
       run: | 
                npm install snyk-to-html -g 
-    - name: Snyk Open Source Scanning
+   # - name: Snyk Open Source Scanning
      ## continue-on-error: true
       
     - name: install snyk-to-html
@@ -48,7 +48,7 @@ jobs:
           name: results
           path: downloads
           
-    - name: Snyk Code Scanning
+    #- name: Snyk Code Scanning
       #run: snyk code test --json | snyk-to-html -o snykcode.html 
       #continue-on-error: true
     
@@ -56,12 +56,12 @@ jobs:
     #- name: Build the Docker Image
     #  run: docker build . --file Dockerfile --tag sebsnyk/juice-shop:latest
 
-    - name: Snyk Container Scanning
+    #- name: Snyk Container Scanning
       #run: snyk container test --json | snyk-to-html -o snykcont.html 
      # continue-on-error: true
     
 
-    - name: Snyk Infrastructure-as-Code Scanning
+    #- name: Snyk Infrastructure-as-Code Scanning
       #run: snyk iac test --json | snyk-to-html -o snykiac.html
       #continue-on-error: true
     
