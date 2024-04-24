@@ -36,7 +36,7 @@ jobs:
    # - name: Snyk Open Source Scanning
      ## continue-on-error: true
       
-    - name: install snyk-to-html
+    - name: SNyk SCA Test
       run: 
           snyk test --json | snyk-to-html -o result.html
           mkdir downloads
