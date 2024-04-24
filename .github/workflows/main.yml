@@ -48,7 +48,7 @@ jobs:
     
           
     - name: Snyk Code Scanning
-      run: snyk code test --json | snyk-to-html -o snykcode.html 
+      run: snyk code test --json | snyk-filter | snyk-to-html -o snykcode.html 
       continue-on-error: true
     
 
