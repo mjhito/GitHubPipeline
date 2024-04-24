@@ -41,7 +41,7 @@ jobs:
       
     - name: SNyk SCA Test
       run: 
-          snyk test --json | snyk-to-html -o result.html
+          snyk test --json | snyk-filter | snyk-to-html -o scaresult.html
           mkdir downloads
           cp -v /home/runner/work/sladey01.github.io/sladey01.github.io/*.html /home/runner/work/sladey01.github.io/sladey01.github.io/downloads
 
