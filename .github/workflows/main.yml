@@ -61,6 +61,9 @@ jobs:
       run: snyk iac test --json | snyk-to-html -o snykiac.html
       continue-on-error: true
 
+    - name: Install SNyk Filter
+      run: npm i -g snyk-filter
+
     - name: Use the Upload Artifact GitHub Action
       uses: actions/upload-artifact@v4
       with:
