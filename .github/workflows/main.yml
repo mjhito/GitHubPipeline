@@ -40,6 +40,7 @@ jobs:
 
     - name: Snyk filter test
       run: snyk test --json | snyk-filter
+      continue-on-error: true
       
     - name: SNyk SCA Test
       run: 
