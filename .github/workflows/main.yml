@@ -39,7 +39,7 @@ jobs:
       run: npm i -g snyk-filter
 
     - name: Snyk filter test
-      run: snyk test --json | snyk-filter
+      run: snyk test --json | snyk-filter ${{ github.workspace }}/.snyk-filter/snyk.yml
       continue-on-error: true
       
     - name: SNyk SCA Test
