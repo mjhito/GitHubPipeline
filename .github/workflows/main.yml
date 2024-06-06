@@ -59,7 +59,7 @@ jobs:
       run: docker build . --file Dockerfile --tag sladey01/sladey01.github.io:latest
 
     - name: Snyk Container Scanning
-      run: snyk container test  
+      run: snyk container test node:6-stretch 
       continue-on-error: true
     
 
