@@ -64,7 +64,7 @@ jobs:
     
 
     - name: Snyk Infrastructure-as-Code Scanning
-      run: snyk iac test 
+      run: snyk iac test --json 
       continue-on-error: true
 
     
