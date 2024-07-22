@@ -6,13 +6,12 @@ name: Prebuilt repo + Snyk Security Scanning (OS, Code, Docker, IaC)
 # Outputs the results to the pipeline and in SARIF-format to the security tab
 
 # Prerequisites:
-# - Set a SNYK_TOKEN and a SNYK_ORG in the pipelines secrets.
+# - Set a SNYK_TOKEN and a SNYK_ORG in the pipelines secrets
 
 on: [push, pull_request]
 
 jobs:
   build:
-  
     runs-on: ubuntu-latest
 
     steps:
@@ -34,37 +33,42 @@ jobs:
     - name: install snyk-to-html
       run: | 
                npm install snyk-to-html -g 
-   
+   # - name: Snyk Open Source Scanning
+     ## continue-on-error: true
     - name: Install SNyk Filter
       run: npm i -g snyk-filter
-    
+
+    - name: Snyk filter test
+      run: snyk test --json | snyk-filter
+      continue-on-error: true
       
-         
     - name: SNyk SCA Test
       run: 
           snyk test --json | snyk-to-html -o scaresult.html
-         # mkdir downloads
-         # cp -v /home/runner/work/sladey01.github.io/sladey01.github.io/*.html /home/runner/work/sladey01.github.io/sladey01.github.io/downloads
-            
+          mkdir downloads
+          cp -v /home/runner/work/sladey01.github.io/sladey01.github.io/*.html /home/runner/work/sladey01.github.io/sladey01.github.io/downloads
+
+    
+          
     - name: Snyk Code Scanning
-      run: snyk code test --json | snyk-to-html -o coderesult.html 
+      run: snyk code test --json | snyk-to-html -o snykcode.html 
       continue-on-error: true
     
+
     - name: Build the Docker Image
       run: docker build . --file Dockerfile --tag sladey01/sladey01.github.io:latest
 
     - name: Snyk Container Scanning
-      run: snyk container test docker.io/sladey01/sladey01.github.io:latest --json | snyk-to-html -o contresult.html
+      run: snyk container test --file=Dockerfile -json -d| snyk-to-html -o snykcont.html 
       continue-on-error: true
     
+
     - name: Snyk Infrastructure-as-Code Scanning
-      run: snyk iac test --json 
+      run: snyk iac test --json | snyk-to-html -o snykiac.html
       continue-on-error: true
 
-     - name: Snyk filter test
-      run: snyk test --json | snyk-filter ${{ github.workspace }}/.snyk-filter/snyk.yml --json | snyk-to-html -o filtertest.html
-      continue-on-error: true
-      
+    
+
     - name: Use the Upload Artifact GitHub Action
       uses: actions/upload-artifact@v4
       with:
