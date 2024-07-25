@@ -57,7 +57,8 @@ jobs:
       run: docker build . --file Dockerfile --tag sladey01/ghpipeline:latest
 
     - name: Snyk Container Scanning
-      run: snyk container test docker.io/sladey01/ghpipeline:latest -json | snyk-to-html -o snykcont.html      continue-on-error: true
+      run: snyk container test docker.io/sladey01/ghpipeline:latest -json | snyk-to-html -o snykcont.html      
+      continue-on-error: true
     
 
     - name: Snyk Infrastructure-as-Code Scanning
