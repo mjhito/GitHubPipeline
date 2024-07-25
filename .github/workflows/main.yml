@@ -39,12 +39,12 @@ jobs:
       run: npm i -g snyk-filter
 
     - name: Snyk filter test
-      run: snyk test --json | snyk-filter
+      run: snyk test --json | snyk-filter | snyk-to-html -o snykfilter.html 
       continue-on-error: true
       
     - name: SNyk SCA Test
       run: 
-          snyk test --json | snyk-to-html -o scaresult.html
+          snyk test --json | snyk-to-html -o SnykOSS.html
  
     
           
@@ -54,11 +54,10 @@ jobs:
     
 
     - name: Build the Docker Image
-      run: docker build . --file Dockerfile --tag sladey01/sladey01.github.io:latest
+      run: docker build . --file Dockerfile --tag sladey01/ghpipeline:latest
 
     - name: Snyk Container Scanning
-      run: snyk container test docker.io/sladey01/sladey01.github.io:latest -json 
-      continue-on-error: true
+      run: snyk container test docker.io/sladey01/ghpipeline:latest -json | snyk-to-html -o snykcont.html      continue-on-error: true
     
 
     - name: Snyk Infrastructure-as-Code Scanning
