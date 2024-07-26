@@ -45,7 +45,7 @@ jobs:
       
     # Run Snyk Filter Test (see .snyk-filter.snyk.yml for config)
     - name: Snyk filter test
-      run: snyk test --json | snyk-filter --json | snyk-to-html -o snykfilter.html 
+      run: snyk-filter -i SnykOSS.html | snyk-to-html -o snykfilter.html 
       continue-on-error: true
     
     
