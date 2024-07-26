@@ -40,12 +40,16 @@ jobs:
     # Run Snyk OpenSource Test
     - name: Snyk OpenSource Test
       run: 
-          snyk test --json --json-file-output=snykoss.json | snyk-to-html -o SnykOSS.html
+          snyk test --json-file-output=snykoss.json
       continue-on-error: true
+
+    # Use Snyk to Html on json file
+    - name: Snyk to HTML on OSS json file
+      run: snyk-to-html -i snykoss.json -o SnykOSS.html
       
     # Run Snyk Filter Test (see .snyk-filter.snyk.yml for config)
     - name: Snyk filter test
-      run: snyk-filter -i snykoss.json | snyk-to-html -o snykfilter.html 
+      run: snyk-filter -i snykoss.json -json | snyk-to-html -o snykfilter.html 
       continue-on-error: true
     
     
