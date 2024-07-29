@@ -3,7 +3,7 @@ name: Prebuilt repo + Snyk Security Scanning (OS, Code, Docker, IaC and Snyk Fil
 # Runs 4 Snyk Products (Code, Open Source, Container, IaC)
 # Snyk installation via npm
 # Node.js version: 18.4
-# Outputs the results to HTML files/GitHub Artifact
+# Outputs the results to json file then Snyk-to-htm outputs to HTML files/GitHub Artifact
 
 # Prerequisites:
 # - Set a SNYK_TOKEN in the pipelines secrets 
@@ -53,7 +53,7 @@ jobs:
       run: snyk iac test --json-file-output=results-iac.json
       continue-on-error: true
 
-    # Build the container to test and Tag with meaningful name
+    # Build the container for Snyk Container to test and Tag with meaningful name
     - name: Build the Docker Image
       run: docker build . --file Dockerfile --tag sladey01/ghpipeline:latest
 
@@ -62,7 +62,8 @@ jobs:
       run: snyk container test docker.io/sladey01/ghpipeline:latest --json-file-output=results-container.json     
       continue-on-error: true
 
-    # Run Snyk Filter Test (see .snyk-filter.snyk.yml for config)
+    # Run Snyk Filter Test (see /.snyk-filter.snyk.yml for config)
+    # Snyk-filer cannot create an output file so we pipe directly to snyk-to-html
     - name: Snyk filter test
       run: snyk-filter --json -i results-opensource.json | snyk-to-html -o results-snykfilter.html
       continue-on-error: true
@@ -74,12 +75,11 @@ jobs:
        snyk-to-html -i results-code.json -o results-code.html
        snyk-to-html -i results-iac.json -o results-iac.html
        snyk-to-html -i results-container.json -o results-container.html
-       snyk-to-html -i results-snykfilter.json -o results-snykfilter.html
-      
+             
     
     #Collect all the generated html files and upload to a GitHub Artifact
     - name: Use the Upload Artifact GitHub Action
       uses: actions/upload-artifact@v4
       with:
-          name: results
+          name: snykresults
           path: ./*.html   
