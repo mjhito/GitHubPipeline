@@ -69,11 +69,12 @@ jobs:
       
     # Use Snyk to Html on json files
     - name: Snyk to HTML on json files
-      run: snyk-to-html -i results-opensource.json -o results-opensource.html
-      run: snyk-to-html -i results-code.json -o results-code.html
-      run: snyk-to-html -i results-iac.json -o results-iac.html
-      run: snyk-to-html -i results-container.json -o results-container.html
-      run: snyk-to-html -i results-snykfilter.json -o results-snykfilter.html
+      run: |
+      snyk-to-html -i results-opensource.json -o results-opensource.html
+      snyk-to-html -i results-code.json -o results-code.html
+      snyk-to-html -i results-iac.json -o results-iac.html
+      snyk-to-html -i results-container.json -o results-container.html
+      snyk-to-html -i results-snykfilter.json -o results-snykfilter.html
       
     
     #Collect all the generated html files and upload to a GitHub Artifact
