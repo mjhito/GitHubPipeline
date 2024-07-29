@@ -64,7 +64,7 @@ jobs:
 
     # Run Snyk Filter Test (see .snyk-filter.snyk.yml for config)
     - name: Snyk filter test
-      run: snyk-filter --json -i results-opensource.json -o results-snykfilter.json
+      run: snyk-filter --json -i results-opensource.json | snyk-to-html -o results-snykfilter.html
       continue-on-error: true
       
     # Use Snyk to Html on json files
