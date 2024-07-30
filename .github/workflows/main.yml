@@ -71,9 +71,9 @@ jobs:
     # Use Snyk to Html on json files (use -s for summary and -a for actionable issues)
     - name: Snyk to HTML on json files
       run: |
-       snyk-to-html -i results-opensource.json -o results-opensource.html -a
-       snyk-to-html -i results-code.json -o results-code.html -as
-       snyk-to-html -i results-iac.json -o results-iac.html -a
+       snyk-to-html -i results-opensource.json -o results-opensource.html 
+       snyk-to-html -i results-code.json -o results-code.html 
+       snyk-to-html -i results-iac.json -o results-iac.html 
        snyk-to-html -i results-container.json -o results-container.html
              
     
