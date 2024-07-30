@@ -80,7 +80,7 @@ jobs:
 
     #Snyk Monitor (Target in Preferred Org)
     - name: Snyk Monitor to default Org
-      run: snyk monitor
+      run: snyk monitor --all-projects
       continue-on-error: true
     
     #Collect all the generated html files and upload to a GitHub Artifact
