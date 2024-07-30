@@ -68,14 +68,20 @@ jobs:
       run: snyk-filter --json -i results-opensource.json | snyk-to-html -o results-snykfilter.html
       continue-on-error: true
       
-    # Use Snyk to Html on json files
+    # Use Snyk to Html on json files (use -s for summary and -a for actionable issues)
     - name: Snyk to HTML on json files
       run: |
        snyk-to-html -i results-opensource.json -o results-opensource.html
-       snyk-to-html -i results-code.json -o results-code.html
-       snyk-to-html -i results-iac.json -o results-iac.html
+       snyk-to-html -i results-opensource.json -o results-opensourceSummary.html -s
+       snyk-to-html -i results-opensource.json -o results-opensourceActionable.html -a
+       snyk-to-html -i results-code.json -o results-code.html 
+       snyk-to-html -i results-iac.json -o results-iac.html 
        snyk-to-html -i results-container.json -o results-container.html
-             
+
+    #Snyk Monitor (Target in Preferred Org)
+    - name: Snyk Monitor to default Org
+      run: snyk monitor 
+      continue-on-error: true
     
     #Collect all the generated html files and upload to a GitHub Artifact
     - name: Use the Upload Artifact GitHub Action
