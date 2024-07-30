@@ -77,7 +77,11 @@ jobs:
        snyk-to-html -i results-code.json -o results-code.html 
        snyk-to-html -i results-iac.json -o results-iac.html 
        snyk-to-html -i results-container.json -o results-container.html
-             
+
+    #Snyk Monitor (Target in Preferred Org)
+    - name: Snyk Monitor to default Org
+      run: snyk monitor
+      continue-on-error: true
     
     #Collect all the generated html files and upload to a GitHub Artifact
     - name: Use the Upload Artifact GitHub Action
