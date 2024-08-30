@@ -1,6 +1,6 @@
 name: Prebuilt repo + Snyk Security Scanning (OS, Code, Docker, IaC and Snyk Filter)
 
-# Runs 4 Snyk Products (Code, Open Source, Container, IaC)
+# Runs 4 Snyk Products (Code, Open Source, Container, IaC) + snyk filter
 # Snyk installation via npm.
 # Node.js version: 18.4
 # Outputs the results to json file then Snyk-to-htm outputs to HTML files/GitHub Artifact
