@@ -7,7 +7,7 @@ name: Prebuilt repo + Snyk Security Scanning (OS, Code, Docker, IaC and Snyk Fil
 
 # Prerequisites:
 # - Set a SNYK_TOKEN in the pipelines secrets 
-# (Repo Settings, Security, Secrets & Variables, Actions, Repo Secrets)
+# (Repo Settings, Security, Secets & Variables, Actions, Repo Secrets)
 
 on: [push, pull_request]
 
