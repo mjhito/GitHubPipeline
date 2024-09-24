@@ -6,7 +6,7 @@ name: Prebuilt repo + Snyk Security Scanning (OS, Code, Docker, IaC and Snyk Fil
 # Outputs the results to json file then Snyk-to-htm outputs to HTML files/GitHub Artifact
 
 # Prerequisites:
-# - Set a SNYK_TOKEN in the pipelines secrets 
+# - Set a SNYK_TOKEN in the pipelines secrets  
 # (Repo Settings, Security, Secets & Variables, Actions, Repo Secrets)
 
 on: [push, pull_request]
