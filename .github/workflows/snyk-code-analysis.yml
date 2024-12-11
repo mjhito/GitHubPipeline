@@ -1,0 +1,177 @@
+name: Snyk Code Analysis Pipeline
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  snyk-code-scan:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Install dependencies
+      run: |
+        pip install requests
+        
+    - name: Run Snyk Code Analysis
+      env:
+        SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+        ORG_ID: dcaputo-cbdemos
+      run: |
+        cat > snyk_code_scan.py << 'EOF'
+        import base64
+        import json
+        import os
+        import time
+        import requests
+        from pathlib import Path
+
+        def encode_file(file_path):
+            with open(file_path, 'rb') as f:
+                return base64.b64encode(f.read()).decode('utf-8')
+
+        def get_files_to_analyze():
+            files = []
+            extensions = ['.py', '.js', '.java', '.cs', '.go']
+            
+            for ext in extensions:
+                for file_path in Path('.').rglob(f'*{ext}'):
+                    if 'node_modules' not in str(file_path) and '.git' not in str(file_path):
+                        files.append({
+                            'path': str(file_path),
+                            'content': encode_file(file_path)
+                        })
+            return files
+
+        def create_analysis(org_id, files):
+            url = 'https://api.snyk.io/v3/graphql'
+            headers = {
+                'Authorization': f'Bearer {os.environ["SNYK_TOKEN"]}',
+                'Content-Type': 'application/json'
+            }
+            
+            query = """
+            mutation createCodeAnalysis($orgId: ID!, $source: CodeSubmissionSource!) {
+                createCodeAnalysis(
+                    input: {
+                        orgId: $orgId,
+                        source: $source
+                    }
+                ) {
+                    id
+                    status
+                    analysisUrl
+                }
+            }
+            """
+            
+            variables = {
+                'orgId': org_id,
+                'source': {'files': files}
+            }
+            
+            response = requests.post(url, headers=headers, json={'query': query, 'variables': variables})
+            return response.json()
+
+        def check_analysis_status(analysis_id):
+            url = 'https://api.snyk.io/v3/graphql'
+            headers = {
+                'Authorization': f'Bearer {os.environ["SNYK_TOKEN"]}',
+                'Content-Type': 'application/json'
+            }
+            
+            query = """
+            query codeAnalysis($id: ID!) {
+                codeAnalysis(id: $id) {
+                    status
+                    results {
+                        issues {
+                            nodes {
+                                id
+                                title
+                                severity
+                                priority
+                                reachability
+                                dataFlow {
+                                    description
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            """
+            
+            variables = {'id': analysis_id}
+            response = requests.post(url, headers=headers, json={'query': query, 'variables': variables})
+            return response.json()
+
+        def main():
+            print("Collecting files for analysis...")
+            files = get_files_to_analyze()
+            print(f"Found {len(files)} files to analyze")
+            
+            print("Creating Snyk Code analysis...")
+            result = create_analysis(os.environ['ORG_ID'], files)
+            
+            if 'errors' in result:
+                print("Error creating analysis:", result['errors'])
+                exit(1)
+                
+            analysis_id = result['data']['createCodeAnalysis']['id']
+            print(f"Analysis created with ID: {analysis_id}")
+            
+            print("Waiting for analysis to complete...")
+            max_attempts = 30
+            attempt = 0
+            
+            while attempt < max_attempts:
+                status_result = check_analysis_status(analysis_id)
+                
+                if 'errors' in status_result:
+                    print("Error checking status:", status_result['errors'])
+                    exit(1)
+                    
+                status = status_result['data']['codeAnalysis']['status']
+                print(f"Current status: {status}")
+                
+                if status == 'COMPLETE':
+                    issues = status_result['data']['codeAnalysis']['results']['issues']['nodes']
+                    print("\nAnalysis Results:")
+                    print(f"Found {len(issues)} issues")
+                    
+                    severity_counts = {}
+                    for issue in issues:
+                        severity = issue['severity']
+                        severity_counts[severity] = severity_counts.get(severity, 0) + 1
+                    
+                    print("\nIssues by severity:")
+                    for severity, count in severity_counts.items():
+                        print(f"{severity}: {count}")
+                    
+                    if severity_counts.get('critical', 0) > 0 or severity_counts.get('high', 0) > 0:
+                        print("\nFailing pipeline due to critical/high severity issues")
+                        exit(1)
+                        
+                    break
+                    
+                elif status == 'FAILED':
+                    print("Analysis failed")
+                    exit(1)
+                    
+                time.sleep(10)
+                attempt += 1
+            
+            if attempt >= max_attempts:
+                print("Analysis timed out")
+                exit(1)
+
+        if __name__ == '__main__':
+            main()
+        EOF
+        
+        python snyk_code_scan.py
