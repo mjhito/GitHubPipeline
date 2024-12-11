@@ -49,7 +49,7 @@ jobs:
             return files
 
         def create_analysis(org_id, files):
-            url = f'https://api.snyk.io/rest/orgs/{org_id}/sast/analysis'
+            url = f'https://api.snyk.io/v3/orgs/{org_id}/sast'
             headers = {
                 'Authorization': f'Bearer {os.environ["SNYK_TOKEN"]}',
                 'Content-Type': 'application/json'
@@ -60,12 +60,16 @@ jobs:
             }
             
             try:
-                response = requests.post(url, headers=headers, json=payload)
-                response.raise_for_status()
+                print(f"Making request to: {url}")
+                print(f"Headers: {headers}")
+                print(f"Number of files in payload: {len(files)}")
                 
+                response = requests.post(url, headers=headers, json=payload)
                 print(f"Response status code: {response.status_code}")
                 print(f"Response headers: {response.headers}")
                 print(f"Response text: {response.text}")
+                
+                response.raise_for_status()
                 
                 if response.text:
                     return response.json()
@@ -80,10 +84,10 @@ jobs:
                 raise
 
         def check_analysis_status(org_id, analysis_id):
-            url = f'https://api.snyk.io/rest/orgs/{org_id}/code/analysis-status?analysisId={analysis_id}'
+            url = f'https://api.snyk.io/v3/orgs/{org_id}/sast/{analysis_id}/status'
             headers = {
                 'Authorization': f'Bearer {os.environ["SNYK_TOKEN"]}',
-                'Content-Type': 'application/json'
+                'Accept': 'application/json'
             }
             
             try:
@@ -113,12 +117,19 @@ jobs:
             if not result:
                 print("No result from create_analysis")
                 exit(1)
+            
+            print(f"Analysis result: {json.dumps(result, indent=2)}")
                 
             if 'errors' in result:
                 print("Error creating analysis:", result['errors'])
                 exit(1)
                 
-            analysis_id = result['analysisId']
+            analysis_id = result.get('id')
+            if not analysis_id:
+                print("No analysis ID in response")
+                print(f"Full response: {result}")
+                exit(1)
+                
             print(f"Analysis created with ID: {analysis_id}")
             
             print("Waiting for analysis to complete...")
@@ -127,22 +138,23 @@ jobs:
             
             while attempt < max_attempts:
                 status_result = check_analysis_status(os.environ['ORG_ID'], analysis_id)
+                print(f"Status check result: {json.dumps(status_result, indent=2)}")
                 
                 if 'errors' in status_result:
                     print("Error checking status:", status_result['errors'])
                     exit(1)
                     
-                status = status_result['status']
+                status = status_result.get('status', 'unknown')
                 print(f"Current status: {status}")
                 
-                if status == 'complete':
-                    issues = status_result['issues']
+                if status == 'completed':
+                    issues = status_result.get('issues', [])
                     print("\nAnalysis Results:")
                     print(f"Found {len(issues)} issues")
                     
                     severity_counts = {}
                     for issue in issues:
-                        severity = issue['severity']
+                        severity = issue.get('severity', 'unknown')
                         severity_counts[severity] = severity_counts.get(severity, 0) + 1
                     
                     print("\nIssues by severity:")
