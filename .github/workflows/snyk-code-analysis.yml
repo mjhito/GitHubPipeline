@@ -49,37 +49,20 @@ jobs:
             return files
 
         def create_analysis(org_id, files):
-            url = 'https://api.snyk.io/v3/graphql'
+            url = f'https://api.snyk.io/rest/orgs/{org_id}/sast/analysis'
             headers = {
                 'Authorization': f'Bearer {os.environ["SNYK_TOKEN"]}',
                 'Content-Type': 'application/json'
             }
             
-            query = """
-            mutation createCodeAnalysis($orgId: ID!, $source: CodeSubmissionSource!) {
-                createCodeAnalysis(
-                    input: {
-                        orgId: $orgId,
-                        source: $source
-                    }
-                ) {
-                    id
-                    status
-                    analysisUrl
-                }
-            }
-            """
-            
-            variables = {
-                'orgId': org_id,
-                'source': {'files': files}
+            payload = {
+                'files': files
             }
             
             try:
-                response = requests.post(url, headers=headers, json={'query': query, 'variables': variables})
-                response.raise_for_status()  # Raise exception for bad status codes
+                response = requests.post(url, headers=headers, json=payload)
+                response.raise_for_status()
                 
-                # Print response details for debugging
                 print(f"Response status code: {response.status_code}")
                 print(f"Response headers: {response.headers}")
                 print(f"Response text: {response.text}")
@@ -95,44 +78,16 @@ jobs:
                 if hasattr(e.response, 'text'):
                     print(f"Error response: {e.response.text}")
                 raise
-            except json.JSONDecodeError as e:
-                print(f"JSON decode error: {e}")
-                print(f"Raw response: {response.text}")
-                raise
 
-        def check_analysis_status(analysis_id):
-            url = 'https://api.snyk.io/v3/graphql'
+        def check_analysis_status(org_id, analysis_id):
+            url = f'https://api.snyk.io/rest/orgs/{org_id}/code/analysis-status?analysisId={analysis_id}'
             headers = {
                 'Authorization': f'Bearer {os.environ["SNYK_TOKEN"]}',
                 'Content-Type': 'application/json'
             }
             
-            query = """
-            query codeAnalysis($id: ID!) {
-                codeAnalysis(id: $id) {
-                    status
-                    results {
-                        issues {
-                            nodes {
-                                id
-                                title
-                                severity
-                                priority
-                                reachability
-                                dataFlow {
-                                    description
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-            """
-            
-            variables = {'id': analysis_id}
-            
             try:
-                response = requests.post(url, headers=headers, json={'query': query, 'variables': variables})
+                response = requests.get(url, headers=headers)
                 response.raise_for_status()
                 return response.json()
             except Exception as e:
@@ -163,7 +118,7 @@ jobs:
                 print("Error creating analysis:", result['errors'])
                 exit(1)
                 
-            analysis_id = result['data']['createCodeAnalysis']['id']
+            analysis_id = result['analysisId']
             print(f"Analysis created with ID: {analysis_id}")
             
             print("Waiting for analysis to complete...")
@@ -171,17 +126,17 @@ jobs:
             attempt = 0
             
             while attempt < max_attempts:
-                status_result = check_analysis_status(analysis_id)
+                status_result = check_analysis_status(os.environ['ORG_ID'], analysis_id)
                 
                 if 'errors' in status_result:
                     print("Error checking status:", status_result['errors'])
                     exit(1)
                     
-                status = status_result['data']['codeAnalysis']['status']
+                status = status_result['status']
                 print(f"Current status: {status}")
                 
-                if status == 'COMPLETE':
-                    issues = status_result['data']['codeAnalysis']['results']['issues']['nodes']
+                if status == 'complete':
+                    issues = status_result['issues']
                     print("\nAnalysis Results:")
                     print(f"Found {len(issues)} issues")
                     
@@ -200,7 +155,7 @@ jobs:
                         
                     break
                     
-                elif status == 'FAILED':
+                elif status == 'failed':
                     print("Analysis failed")
                     exit(1)
                     
