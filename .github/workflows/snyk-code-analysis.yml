@@ -1,7 +1,7 @@
 name: Snyk Code Analysis Pipeline
 
 on:
-  workflow_dispatch:  # Add this to enable manual triggers
+  workflow_dispatch:
   push:
     branches: [ main ]
   pull_request:
@@ -75,8 +75,30 @@ jobs:
                 'source': {'files': files}
             }
             
-            response = requests.post(url, headers=headers, json={'query': query, 'variables': variables})
-            return response.json()
+            try:
+                response = requests.post(url, headers=headers, json={'query': query, 'variables': variables})
+                response.raise_for_status()  # Raise exception for bad status codes
+                
+                # Print response details for debugging
+                print(f"Response status code: {response.status_code}")
+                print(f"Response headers: {response.headers}")
+                print(f"Response text: {response.text}")
+                
+                if response.text:
+                    return response.json()
+                else:
+                    print("Empty response received")
+                    return None
+                    
+            except requests.exceptions.RequestException as e:
+                print(f"Request failed: {e}")
+                if hasattr(e.response, 'text'):
+                    print(f"Error response: {e.response.text}")
+                raise
+            except json.JSONDecodeError as e:
+                print(f"JSON decode error: {e}")
+                print(f"Raw response: {response.text}")
+                raise
 
         def check_analysis_status(analysis_id):
             url = 'https://api.snyk.io/v3/graphql'
@@ -108,17 +130,35 @@ jobs:
             """
             
             variables = {'id': analysis_id}
-            response = requests.post(url, headers=headers, json={'query': query, 'variables': variables})
-            return response.json()
+            
+            try:
+                response = requests.post(url, headers=headers, json={'query': query, 'variables': variables})
+                response.raise_for_status()
+                return response.json()
+            except Exception as e:
+                print(f"Error checking status: {e}")
+                if hasattr(e, 'response') and hasattr(e.response, 'text'):
+                    print(f"Error response: {e.response.text}")
+                raise
 
         def main():
             print("Collecting files for analysis...")
             files = get_files_to_analyze()
             print(f"Found {len(files)} files to analyze")
             
+            if not files:
+                print("No files found to analyze")
+                return
+            
             print("Creating Snyk Code analysis...")
+            print(f"Using org ID: {os.environ['ORG_ID']}")
+            
             result = create_analysis(os.environ['ORG_ID'], files)
             
+            if not result:
+                print("No result from create_analysis")
+                exit(1)
+                
             if 'errors' in result:
                 print("Error creating analysis:", result['errors'])
                 exit(1)
