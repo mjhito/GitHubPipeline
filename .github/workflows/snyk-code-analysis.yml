@@ -1,6 +1,7 @@
 name: Snyk Code Analysis Pipeline
 
 on:
+  workflow_dispatch:  # Add this to enable manual triggers
   push:
     branches: [ main ]
   pull_request:
