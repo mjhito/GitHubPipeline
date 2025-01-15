@@ -21,7 +21,7 @@ jobs:
     - name: Run Snyk Code Analysis
       env:
         SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
-        ORG_ID: dd5850c3-5d7a-4966-89b3-e24ec510f9fc
+        ORG_ID: 8e905715-06ac-4547-8b80-980342515daa
       run: |
         cat > snyk_code_scan.py << 'EOF'
         import base64
