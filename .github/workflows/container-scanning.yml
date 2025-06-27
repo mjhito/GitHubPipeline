@@ -19,6 +19,7 @@ jobs:
     # Authenticate Snyk
       env:
         SNYK_API: ${{ secrets.SNYK_API }}
+        SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
     - run: snyk auth ${{ secrets.SNYK_TOKEN }}
     
 # Build the container for Snyk Container to test and Tag with meaningful name
@@ -27,10 +28,16 @@ jobs:
 
     # Run Snyk Container Test specifying the tagged container image built in previous step
     - name: Snyk Container Scanning
+      env:
+        SNYK_API: ${{ secrets.SNYK_API }}
+        SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
       run: snyk container test docker.io/sladey01/ghpipeline:latest --json-file-output=results-container.json     
       continue-on-error: true
 
     #Snyk Monitor (Target in Preferred Org)
     - name: Snyk Monitor to default Org
+      env:
+        SNYK_API: ${{ secrets.SNYK_API }}
+        SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
       run: snyk container monitor docker.io/sladey01/ghpipeline:latest --target-reference=latest --org=pipeline-examples
       continue-on-error: true
