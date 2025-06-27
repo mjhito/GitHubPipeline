@@ -20,7 +20,7 @@ jobs:
       env:
         SNYK_API: https://api.us.snyk.io
         SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
-    - run: snyk auth "$SNYK_TOKEN"
+    - run: snyk auth a669dca1-7306-4cd9-a867-69620ba3b4a7
     
 # Build the container for Snyk Container to test and Tag with meaningful name
     - name: Build the Docker Image
