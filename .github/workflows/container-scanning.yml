@@ -1,0 +1,35 @@
+on: workflow_dispatch
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Use Node.js for installing Snyk 
+      uses: actions/setup-node@v2
+      with:
+        node-version: 18.4
+
+    # Install & prepare Snyk
+    - run: npm install --location=global snyk
+
+    # Authenticate Snyk
+      env:
+        SNYK_API: ${{ secrets.SNYK_API }}
+    - run: snyk auth ${{ secrets.SNYK_TOKEN }}
+    
+# Build the container for Snyk Container to test and Tag with meaningful name
+    - name: Build the Docker Image
+      run: docker build . --file Dockerfile --tag sladey01/ghpipeline:latest
+
+    # Run Snyk Container Test specifying the tagged container image built in previous step
+    - name: Snyk Container Scanning
+      run: snyk container test docker.io/sladey01/ghpipeline:latest --json-file-output=results-container.json     
+      continue-on-error: true
+
+    #Snyk Monitor (Target in Preferred Org)
+    - name: Snyk Monitor to default Org
+      run: snyk monitor --target-reference=latest --org=pipeline-examples
+      continue-on-error: true
