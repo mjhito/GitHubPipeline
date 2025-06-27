@@ -32,5 +32,5 @@ jobs:
 
     #Snyk Monitor (Target in Preferred Org)
     - name: Snyk Monitor to default Org
-      run: snyk monitor --target-reference=latest --org=pipeline-examples
+      run: snyk container monitor docker.io/sladey01/ghpipeline:latest --target-reference=latest --org=pipeline-examples
       continue-on-error: true
