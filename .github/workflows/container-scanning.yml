@@ -1,3 +1,4 @@
+name: Snyk container Scanning
 on: workflow_dispatch
 
 jobs:
