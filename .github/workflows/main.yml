@@ -27,7 +27,9 @@ jobs:
     - run: npm install --location=global snyk
 
     # Authenticate Snyk      
-    - run: snyk auth ${{ secrets.SNYK_TOKEN }}
+    - run: |
+        export SNYK_API=${{ secrets.SNYK_API }}
+        snyk auth ${{ secrets.SNYK_TOKEN }}
 
     # Install & prepare Snyk-to-Html tool
     - name: install snyk-to-html
