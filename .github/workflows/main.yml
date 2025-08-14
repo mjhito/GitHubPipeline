@@ -41,17 +41,26 @@ jobs:
 
     # Run Snyk OpenSource Test
     - name: Snyk OpenSource Test
+      env:
+        SNYK_API: ${{ secrets.SNYK_API }}
+        SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
       run: 
           snyk test --json-file-output=results-opensource.json
       continue-on-error: true
 
     # Run Snyk Code Test
     - name: Snyk Code Scanning
+      env:
+        SNYK_API: ${{ secrets.SNYK_API }}
+        SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
       run: snyk code test --json-file-output=results-code.json 
       continue-on-error: true
 
     # Run Snyk IaC Test
     - name: Snyk Infrastructure-as-Code Scanning
+      env:
+        SNYK_API: ${{ secrets.SNYK_API }}
+        SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
       run: snyk iac test --json-file-output=results-iac.json
       continue-on-error: true
 
@@ -61,12 +70,18 @@ jobs:
 
     # Run Snyk Container Test specifying the tagged container image built in previous step
     - name: Snyk Container Scanning
+      env:
+        SNYK_API: ${{ secrets.SNYK_API }}
+        SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
       run: snyk container test docker.io/sladey01/ghpipeline:latest --json-file-output=results-container.json     
       continue-on-error: true
 
     # Run Snyk Filter Test (see /.snyk-filter.snyk.yml for config)
     # Snyk-filer cannot create an output file so we pipe directly to snyk-to-html
     - name: Snyk filter test
+      env:
+        SNYK_API: ${{ secrets.SNYK_API }}
+        SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
       run: snyk-filter --json -i results-opensource.json | snyk-to-html -o results-snykfilter.html
       continue-on-error: true
       
@@ -82,6 +97,9 @@ jobs:
 
     #Snyk Monitor (Target in Preferred Org)
     - name: Snyk Monitor to default Org
+      env:
+        SNYK_API: ${{ secrets.SNYK_API }}
+        SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
       run: snyk monitor 
       continue-on-error: true
     
