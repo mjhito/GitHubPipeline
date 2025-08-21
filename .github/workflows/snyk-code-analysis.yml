@@ -49,7 +49,7 @@ jobs:
             return files
 
         def create_analysis(org_id, files):
-            url = 'https://api.us.snyk.io/v3/graphql'
+            url = 'https://api.snyk.io/v3/graphql'
             headers = {
                 'Authorization': f'Bearer {os.environ["SNYK_TOKEN"]}',
                 'Content-Type': 'application/json'
