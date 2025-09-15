@@ -54,7 +54,7 @@ jobs:
         SNYK_API: ${{ secrets.SNYK_API }}
         SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
       run: snyk code test --json-file-output=results-code.json 
-      continue-on-error: true
+      continue-on-error: false
 
     # Run Snyk IaC Test
     - name: Snyk Infrastructure-as-Code Scanning
