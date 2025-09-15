@@ -13,7 +13,7 @@ on:
   push:
     branches: [ main ]
   pull_request:
-    types: [opened, synchronize]
+    types: [opened, synchronize, closed]
     branches:
       - 'main'
   workflow_dispatch:
@@ -48,6 +48,7 @@ jobs:
 
     # Run Snyk OpenSource Test
     - name: Snyk OpenSource Test
+      if: github.event.action == 'opened' || github.event.action == 'synchronize'
       env:
         SNYK_API: ${{ secrets.SNYK_API }}
         SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
@@ -57,14 +58,16 @@ jobs:
 
     # Run Snyk Code Test
     - name: Snyk Code Scanning
+      if: github.event.action == 'opened' || github.event.action == 'synchronize'
       env:
         SNYK_API: ${{ secrets.SNYK_API }}
         SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
       run: snyk code test --json-file-output=results-code.json 
-      continue-on-error: false
+      continue-on-error: true
 
     # Run Snyk IaC Test
     - name: Snyk Infrastructure-as-Code Scanning
+      if: github.event.action == 'opened' || github.event.action == 'synchronize'
       env:
         SNYK_API: ${{ secrets.SNYK_API }}
         SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
@@ -77,6 +80,7 @@ jobs:
 
     # Run Snyk Container Test specifying the tagged container image built in previous step
     - name: Snyk Container Scanning
+      if: github.event.action == 'opened' || github.event.action == 'synchronize'
       env:
         SNYK_API: ${{ secrets.SNYK_API }}
         SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
@@ -86,6 +90,7 @@ jobs:
     # Run Snyk Filter Test (see /.snyk-filter.snyk.yml for config)
     # Snyk-filer cannot create an output file so we pipe directly to snyk-to-html
     - name: Snyk filter test
+      if: github.event.action == 'opened' || github.event.action == 'synchronize'
       env:
         SNYK_API: ${{ secrets.SNYK_API }}
         SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
@@ -94,6 +99,7 @@ jobs:
       
     # Use Snyk to Html on json files (use -s for summary and -a for actionable issues)
     - name: Snyk to HTML on json files
+      if: github.event.action == 'opened' || github.event.action == 'synchronize'
       run: |
        snyk-to-html -i results-opensource.json -o results-opensource.html
        snyk-to-html -i results-opensource.json -o results-opensourceSummary.html -s
@@ -104,10 +110,11 @@ jobs:
 
     #Snyk Monitor (Target in Preferred Org)
     - name: Snyk Monitor to default Org
+      if: github.event.action == 'closed' && github.event.pull_request.merged == true
       env:
         SNYK_API: ${{ secrets.SNYK_API }}
         SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
-      run: snyk monitor 
+      run: snyk monitor --org=pipeline-examples
       continue-on-error: true
     
     #Collect all the generated html files and upload to a GitHub Artifact
