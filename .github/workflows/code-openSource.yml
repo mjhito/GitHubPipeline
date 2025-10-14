@@ -56,7 +56,7 @@ jobs:
       env:
         SNYK_API: ${{ secrets.SNYK_API }}
         SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
-      run: snyk code test --json-file-output=results-code.json 
+      run: snyk code test --json-file-output=results-code.json --project-name="mjhito/GitHubPipeline" --target-name="mjhito/GitHubPipeline"
       continue-on-error: true
 
     # Run Snyk Filter Test (see /.snyk-filter.snyk.yml for config)
