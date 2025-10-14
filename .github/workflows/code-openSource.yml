@@ -1,4 +1,4 @@
-name: Snyk Security Scanning (OS, Code, Docker, IaC and Snyk Filter)
+name: Snyk Security Scanning
 
 # Runs 4 Snyk Products (Code, Open Source, Container, IaC) + snyk filter
 # Snyk installation via npm.
