@@ -1,4 +1,4 @@
-name: Snyk Security Scanning
+name: Code and Open Source Scanning
 
 # Runs 4 Snyk Products (Code, Open Source, Container, IaC) + snyk filter
 # Snyk installation via npm.
@@ -56,7 +56,7 @@ jobs:
       env:
         SNYK_API: ${{ secrets.SNYK_API }}
         SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
-      run: snyk code test --json-file-output=results-code.json --project-name="mjhito/GitHubPipeline" --target-name="mjhito/GitHubPipeline"
+      run: snyk code test --project-name="mjhito/GitHubPipeline" --target-name="mjhito/GitHubPipeline" --target-reference="$(git branch --show-current)"
       continue-on-error: true
 
     # Run Snyk Filter Test (see /.snyk-filter.snyk.yml for config)
@@ -74,7 +74,7 @@ jobs:
        snyk-to-html -i results-opensource.json -o results-opensource.html
        snyk-to-html -i results-opensource.json -o results-opensourceSummary.html -s
        snyk-to-html -i results-opensource.json -o results-opensourceActionable.html -a
-       snyk-to-html -i results-code.json -o results-code.html 
+       # snyk-to-html -i results-code.json -o results-code.html 
 
     
     #Collect all the generated html files and upload to a GitHub Artifact
